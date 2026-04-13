@@ -147,6 +147,11 @@ select {
   font-weight: 800;
 }
 
+.nick-field b {
+  color: var(--green);
+  font-weight: 850;
+}
+
 .share {
   display: grid;
   grid-template-columns: 1fr auto;
