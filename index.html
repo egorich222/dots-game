@@ -1,55 +1,55 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>Точки</title>
+    <title>GridTrap</title>
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
     <main class="shell">
-      <section class="game-panel" aria-label="Игра Точки">
+      <section class="game-panel" aria-label="GridTrap">
         <div class="topbar">
           <div>
-            <p class="eyebrow">Точки</p>
-            <h1>Окружи соперника</h1>
-            <p class="mode" id="modeText">Локальная игра</p>
+            <p class="eyebrow" data-i18n="brand">GridTrap</p>
+            <h1 data-i18n="headline">Trap the opponent</h1>
+            <p class="mode" id="modeText">Local game</p>
           </div>
           <div class="top-actions">
-            <button id="fullscreenButton" type="button">Во весь экран</button>
-            <button id="resetButton" type="button">Новая партия</button>
+            <button id="fullscreenButton" type="button" data-i18n="fullscreen">Fullscreen</button>
+            <button id="resetButton" type="button" data-i18n="newGame">New game</button>
           </div>
         </div>
 
-        <div class="lobby" aria-label="Онлайн-игра">
+        <div class="lobby" aria-label="Online game">
           <label class="nick-field">
-            <span>Ник</span>
-            <input id="nickInput" type="text" maxlength="18" autocomplete="nickname" placeholder="Игрок">
+            <span data-i18n="nick">Nick</span>
+            <input id="nickInput" type="text" maxlength="18" autocomplete="nickname" placeholder="Player" data-i18n-placeholder="playerPlaceholder">
           </label>
           <label class="nick-field">
-            <span>Поле <b id="boardSizeText">17x13</b></span>
+            <span><span data-i18n="board">Board</span> <b id="boardSizeText">11x9</b></span>
             <select id="boardSizeSelect">
-              <option value="small">Маленькое 11x9</option>
-              <option value="medium" selected>Среднее 17x13</option>
-              <option value="large">Большое 25x19</option>
+              <option value="small" selected>Small 11x9</option>
+              <option value="medium">Medium 17x13</option>
+              <option value="large">Large 25x19</option>
             </select>
           </label>
-          <button id="createRoomButton" type="button">Комната по ссылке</button>
-          <button id="quickGameButton" type="button">Быстрая игра</button>
-          <button id="localGameButton" type="button">Локально</button>
+          <button id="createRoomButton" type="button" data-i18n="roomByLink">Room by link</button>
+          <button id="quickGameButton" type="button" data-i18n="quickGame">Quick game</button>
+          <button id="localGameButton" type="button" data-i18n="local">Local</button>
         </div>
 
         <div class="share" id="shareBox" hidden>
-          <input id="roomLink" type="text" readonly aria-label="Ссылка на комнату">
-          <button id="copyLinkButton" type="button">Скопировать</button>
+          <input id="roomLink" type="text" readonly aria-label="Room link">
+          <button id="copyLinkButton" type="button" data-i18n="copy">Copy</button>
         </div>
 
         <div class="online-row">
-          <p id="roomPlayers">Онлайн-комната пока не выбрана.</p>
+          <p id="roomPlayers">No online room selected.</p>
           <div class="leaderboard">
-            <span>Лучшие захваты</span>
+            <span data-i18n="topCaptures">Top captures</span>
             <ol id="leaderboardList">
-              <li>Первые захваты появятся здесь.</li>
+              <li data-i18n="noCaptures">First captures will appear here.</li>
             </ol>
           </div>
         </div>
@@ -57,29 +57,29 @@
         <div class="status" aria-live="polite">
           <div class="player-chip red active" id="redChip">
             <span class="swatch"></span>
-            <span class="player-name">Красные</span>
-            <span class="score-label">захвачено</span>
+            <span class="player-name" data-i18n="red">Red</span>
+            <span class="score-label" data-i18n="captured">captured</span>
             <strong id="redScore">0</strong>
           </div>
-          <div class="turn" id="turnText">Ход красных</div>
+          <div class="turn" id="turnText">Red turn</div>
           <div class="player-chip blue" id="blueChip">
             <span class="swatch"></span>
-            <span class="player-name">Синие</span>
-            <span class="score-label">захвачено</span>
+            <span class="player-name" data-i18n="blue">Blue</span>
+            <span class="score-label" data-i18n="captured">captured</span>
             <strong id="blueScore">0</strong>
           </div>
         </div>
 
         <div class="board-wrap">
-          <canvas id="board" width="900" height="680" aria-label="Игровое поле"></canvas>
+          <canvas id="board" width="900" height="680" aria-label="Game board"></canvas>
         </div>
 
-        <p class="hint" id="hint">
-          Ставьте точки на пересечения. Замкнутая линия из соседних точек захватывает область только если внутри есть точка соперника.
+        <p class="hint" id="hint" data-i18n="rulesHint">
+          Place dots on intersections. A closed line captures an area only when an opponent dot is inside.
         </p>
 
-        <div class="fullscreen-dock" aria-label="Полноэкранный режим">
-          <button id="exitFullscreenButton" type="button">Свернуть</button>
+        <div class="fullscreen-dock" aria-label="Fullscreen mode">
+          <button id="exitFullscreenButton" type="button" data-i18n="collapse">Collapse</button>
         </div>
       </section>
     </main>

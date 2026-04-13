@@ -32,6 +32,181 @@ const MOBILE_HIT_RADIUS = 24;
 const PLAYER_RED = Rules.PLAYER_RED;
 const PLAYER_BLUE = Rules.PLAYER_BLUE;
 const POLL_INTERVAL = 900;
+const LANG = navigator.language && navigator.language.toLowerCase().startsWith("ru") ? "ru" : "en";
+const TEXT = {
+  en: {
+    brand: "GridTrap",
+    headline: "Trap the opponent",
+    fullscreen: "Fullscreen",
+    newGame: "New game",
+    nick: "Nick",
+    playerPlaceholder: "Player",
+    board: "Board",
+    roomByLink: "Room by link",
+    quickGame: "Quick game",
+    local: "Local",
+    copy: "Copy",
+    topCaptures: "Top captures",
+    noCaptures: "First captures will appear here.",
+    red: "Red",
+    blue: "Blue",
+    captured: "captured",
+    rulesHint: "Place dots on intersections. A closed line captures an area only when an opponent dot is inside.",
+    collapse: "Collapse",
+    small: "Small",
+    medium: "Medium",
+    large: "Large",
+    localStart: "Local game. Red starts.",
+    observer: "You are watching this game. Moves are available to the two players.",
+    opponentTurn: "Opponent's turn.",
+    moveAccepted: "Move accepted.",
+    gameOver: "Game over",
+    redTurn: "Red turn",
+    blueTurn: "Blue turn",
+    yourTurnRed: "Your turn: red",
+    yourTurnBlue: "Your turn: blue",
+    localMode: "Local game",
+    room: "Room",
+    watching: "watching",
+    youPlayAs: "you play as",
+    redLower: "red",
+    blueLower: "blue",
+    roomCreated: "Room created. Send the link to the second player.",
+    searching: "Looking for an opponent. You can send the link to a friend.",
+    matched: "Opponent found. The game has started.",
+    returned: "You returned to the room.",
+    joined: "You joined the room.",
+    roomFull: "Room is full. You are watching the game.",
+    reconnecting: "Connection lost. Trying to reconnect.",
+    observerReset: "A watcher cannot restart the game.",
+    restarted: "The game restarted.",
+    guest: "Player",
+    moves: "Moves",
+    availableMoves: "Available moves",
+    capturedStats: "Captured",
+    localGame: "Local game",
+    boardLabel: "Board",
+    waiting: "waiting for player",
+    watchers: "Watchers",
+    noOnlineRoom: "No online room selected.",
+    serverError: "Server error",
+    sizeLocked: "The board size is locked for this online room. Choose a size before creating a new room.",
+    sizeChanged: "Board changed",
+    newGameStarted: "New game started.",
+    copied: "Link copied.",
+    fullscreenExit: "Collapse",
+    fullscreenEnter: "Fullscreen",
+    gameFinishedDraw: "Game over. Draw",
+    gameFinishedWinner: "Game over. Winner",
+    alreadyFinished: "The game is already over.",
+    wrongTurn: "It is the other player's turn.",
+    outOfBoard: "Move is outside the board.",
+    blockedRed: "red",
+    blockedBlue: "blue",
+    areaBlocked: "This area is already surrounded by {owner}. Moves inside it are forbidden.",
+    occupied: "This intersection is already occupied.",
+    capturedVerb: "captured",
+    dotSingular: "dot",
+    dotPlural: "dots",
+  },
+  ru: {
+    brand: "Точки",
+    headline: "Окружи соперника",
+    fullscreen: "Во весь экран",
+    newGame: "Новая партия",
+    nick: "Ник",
+    playerPlaceholder: "Игрок",
+    board: "Поле",
+    roomByLink: "Комната по ссылке",
+    quickGame: "Быстрая игра",
+    local: "Локально",
+    copy: "Скопировать",
+    topCaptures: "Лучшие захваты",
+    noCaptures: "Первые захваты появятся здесь.",
+    red: "Красные",
+    blue: "Синие",
+    captured: "захвачено",
+    rulesHint: "Ставьте точки на пересечения. Замкнутая линия захватывает область только если внутри есть точка соперника.",
+    collapse: "Свернуть",
+    small: "Маленькое",
+    medium: "Среднее",
+    large: "Большое",
+    localStart: "Локальная партия. Красные начинают.",
+    observer: "Вы наблюдаете за партией. Ходы доступны двум игрокам.",
+    opponentTurn: "Сейчас ход соперника.",
+    moveAccepted: "Ход принят.",
+    gameOver: "Партия завершена",
+    redTurn: "Ход красных",
+    blueTurn: "Ход синих",
+    yourTurnRed: "Ваш ход: красных",
+    yourTurnBlue: "Ваш ход: синих",
+    localMode: "Локальная игра",
+    room: "Комната",
+    watching: "наблюдение",
+    youPlayAs: "вы играете за",
+    redLower: "красные",
+    blueLower: "синие",
+    roomCreated: "Комната создана. Отправьте ссылку второму игроку.",
+    searching: "Ищем соперника. Можно отправить ссылку другу.",
+    matched: "Соперник найден. Партия началась.",
+    returned: "Вы вернулись в комнату.",
+    joined: "Вы вошли в комнату.",
+    roomFull: "Комната заполнена. Вы наблюдаете за партией.",
+    reconnecting: "Связь с сервером потеряна. Пробую переподключиться.",
+    observerReset: "Наблюдатель не может перезапустить партию.",
+    restarted: "Партия началась заново.",
+    guest: "Игрок",
+    moves: "Ходов",
+    availableMoves: "Доступных ходов",
+    capturedStats: "Захвачено",
+    localGame: "Локальная партия",
+    boardLabel: "Поле",
+    waiting: "ждем игрока",
+    watchers: "Наблюдателей",
+    noOnlineRoom: "Онлайн-комната пока не выбрана.",
+    serverError: "Ошибка сервера",
+    sizeLocked: "В онлайн-комнате размер уже зафиксирован. Выберите размер перед созданием новой комнаты.",
+    sizeChanged: "Поле изменено",
+    newGameStarted: "Новая партия началась.",
+    copied: "Ссылка скопирована.",
+    fullscreenExit: "Свернуть",
+    fullscreenEnter: "Во весь экран",
+    gameFinishedDraw: "Партия завершена. Ничья",
+    gameFinishedWinner: "Партия завершена. Победили",
+    alreadyFinished: "Партия уже завершена.",
+    wrongTurn: "Сейчас ход другого игрока.",
+    outOfBoard: "Ход вне поля.",
+    blockedRed: "красными",
+    blockedBlue: "синими",
+    areaBlocked: "Эта область уже окружена {owner}. Внутри нее ходы запрещены.",
+    occupied: "На этом пересечении уже стоит точка.",
+    capturedVerb: "захватили",
+    dotSingular: "точку",
+    dotPlural: "точек",
+  },
+};
+
+function t(key) {
+  return (TEXT[LANG] && TEXT[LANG][key]) || TEXT.en[key] || key;
+}
+
+function applyTranslations() {
+  document.documentElement.lang = LANG;
+  document.title = LANG === "ru" ? "Точки" : "GridTrap";
+  document.querySelectorAll("[data-i18n]").forEach((node) => {
+    node.textContent = t(node.dataset.i18n);
+  });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((node) => {
+    node.placeholder = t(node.dataset.i18nPlaceholder);
+  });
+  updateBoardSizeOptions();
+}
+
+function updateBoardSizeOptions() {
+  for (const option of boardSizeSelect.options) {
+    option.textContent = `${t(option.value)} ${getSizeText(option.value)}`;
+  }
+}
 
 const COLORS = {
   red: "#d4473f",
@@ -70,7 +245,7 @@ function resetLocalGame() {
   };
   state = Rules.createState(getSelectedSize());
   hoverPoint = null;
-  lastMessage = message || "Локальная партия. Красные начинают.";
+  lastMessage = message || t("localStart");
   setShareLink("");
   renderOnlineInfo(null);
   updateStatus();
@@ -179,14 +354,14 @@ async function placeDot(point) {
 
 async function placeOnlineDot(point) {
   if (!online.role) {
-    lastMessage = "Вы наблюдаете за партией. Ходы доступны двум игрокам.";
+    lastMessage = t("observer");
     updateStatus();
     draw();
     return;
   }
 
   if (online.role !== state.currentPlayer) {
-    lastMessage = "Сейчас ход соперника.";
+    lastMessage = t("opponentTurn");
     updateStatus();
     draw();
     return;
@@ -202,7 +377,7 @@ async function placeOnlineDot(point) {
   });
 
   applyRoomSnapshot(response);
-  lastMessage = response.message || (response.result ? getMoveMessage(response.result, online.role) : "Ход принят.");
+  lastMessage = response.result ? getMoveMessage(response.result, online.role) : t("moveAccepted");
   updateStatus();
   draw();
   renderLeaderboard(response.leaderboard);
@@ -214,14 +389,14 @@ function getMoveMessage(result, player) {
   }
 
   if (result.gameOver) {
-    return Rules.getResultText(state);
+    return getResultText(state);
   }
 
   const gained = result.gained[player] || 0;
-  const name = player === PLAYER_RED ? "Красные" : "Синие";
+  const name = player === PLAYER_RED ? t("red") : t("blue");
   return gained > 0
-    ? `${name} захватили ${gained} ${plural(gained, "точку", "точки", "точек")}.`
-    : "Ход принят.";
+    ? `${name} ${t("capturedVerb")} ${gained} ${dotWord(gained)}.`
+    : t("moveAccepted");
 }
 
 function plural(number, one, few, many) {
@@ -236,6 +411,25 @@ function plural(number, one, few, many) {
   return many;
 }
 
+function dotWord(number) {
+  if (LANG === "ru") {
+    return plural(number, t("dotSingular"), "точки", t("dotPlural"));
+  }
+  return number === 1 ? t("dotSingular") : t("dotPlural");
+}
+
+function getResultText(gameState) {
+  const score = gameState.finalScore || Rules.countCaptured(gameState);
+  if (!gameState.gameOver) {
+    return "";
+  }
+  if (gameState.winner === "draw") {
+    return `${t("gameFinishedDraw")}: ${score.red}:${score.blue}.`;
+  }
+  const winnerName = gameState.winner === PLAYER_RED ? t("red") : t("blue");
+  return `${t("gameFinishedWinner")} ${winnerName}: ${score.red}:${score.blue}.`;
+}
+
 function updateStatus() {
   const captured = Rules.countCaptured(state);
   redScore.textContent = captured.red;
@@ -244,8 +438,8 @@ function updateStatus() {
   blueChip.classList.toggle("active", state.currentPlayer === PLAYER_BLUE);
 
   if (state.gameOver) {
-    turnText.textContent = "Партия завершена";
-    hint.textContent = lastMessage || Rules.getResultText(state);
+    turnText.textContent = t("gameOver");
+    hint.textContent = lastMessage || getResultText(state);
     modeText.textContent = getModeLabel();
     if (!online.enabled) {
       renderOnlineInfo(null);
@@ -253,15 +447,18 @@ function updateStatus() {
     return;
   }
 
-  const turnName = state.currentPlayer === PLAYER_RED ? "красных" : "синих";
   if (online.enabled && online.role) {
     const yourTurn = online.role === state.currentPlayer;
-    turnText.textContent = yourTurn ? `Ваш ход: ${turnName}` : `Ход ${turnName}`;
+    if (yourTurn) {
+      turnText.textContent = state.currentPlayer === PLAYER_RED ? t("yourTurnRed") : t("yourTurnBlue");
+    } else {
+      turnText.textContent = state.currentPlayer === PLAYER_RED ? t("redTurn") : t("blueTurn");
+    }
   } else {
-    turnText.textContent = `Ход ${turnName}`;
+    turnText.textContent = state.currentPlayer === PLAYER_RED ? t("redTurn") : t("blueTurn");
   }
 
-  hint.textContent = lastMessage || "Ставьте точки на пересечения.";
+  hint.textContent = lastMessage || t("rulesHint");
   modeText.textContent = getModeLabel();
   if (!online.enabled) {
     renderOnlineInfo(null);
@@ -270,13 +467,13 @@ function updateStatus() {
 
 function getModeLabel() {
   if (!online.enabled) {
-    return `Локальная игра: ${getSizeLabel(state.sizeName)}`;
+    return `${t("localMode")}: ${getSizeLabel(state.sizeName)}`;
   }
   if (!online.role) {
-    return `Комната ${online.roomId}: наблюдение, ${getSizeLabel(state.sizeName)}`;
+    return `${t("room")} ${online.roomId}: ${t("watching")}, ${getSizeLabel(state.sizeName)}`;
   }
-  const color = online.role === PLAYER_RED ? "красные" : "синие";
-  return `Комната ${online.roomId}: вы играете за ${color}, ${getSizeLabel(state.sizeName)}`;
+  const color = online.role === PLAYER_RED ? t("redLower") : t("blueLower");
+  return `${t("room")} ${online.roomId}: ${t("youPlayAs")} ${color}, ${getSizeLabel(state.sizeName)}`;
 }
 
 function getSelectedSize() {
@@ -284,7 +481,7 @@ function getSelectedSize() {
 }
 
 function getSizeLabel(sizeName) {
-  return Rules.getBoardSize(sizeName).label.toLowerCase();
+  return t(sizeName || Rules.DEFAULT_SIZE).toLowerCase();
 }
 
 function getSizeText(sizeName) {
@@ -298,8 +495,8 @@ function updateBoardSizeControls() {
   boardSizeText.textContent = getSizeText(sizeName);
   boardSizeSelect.disabled = online.enabled;
   boardSizeSelect.title = online.enabled
-    ? "Размер онлайн-партии фиксируется при создании комнаты."
-    : "Размер применится к новой локальной партии или новой онлайн-комнате.";
+    ? t("sizeLocked")
+    : "The board size applies to the next local game or online room.";
 }
 
 function draw() {
@@ -511,7 +708,7 @@ async function createRoom() {
       size: getSelectedSize(),
     },
   });
-  enterOnlineRoom(response, "Комната создана. Отправьте ссылку второму игроку.");
+  enterOnlineRoom(response, t("roomCreated"));
 }
 
 async function quickGame() {
@@ -523,8 +720,8 @@ async function quickGame() {
     },
   });
   const message = response.waiting
-    ? "Ищем соперника. Можно отправить ссылку другу."
-    : "Соперник найден. Партия началась.";
+    ? t("searching")
+    : t("matched");
   enterOnlineRoom(response, message);
 }
 
@@ -538,7 +735,7 @@ async function joinRoomFromUrl() {
   const knownPlayer = localStorage.getItem(`dots.player.${roomId}`);
   if (knownPlayer) {
     const response = await api(`/api/state/${roomId}?playerId=${encodeURIComponent(knownPlayer)}`);
-    enterOnlineRoom(response, "Вы вернулись в комнату.");
+    enterOnlineRoom(response, t("returned"));
     return true;
   }
 
@@ -548,7 +745,7 @@ async function joinRoomFromUrl() {
       nick: getNick(),
     },
   });
-  enterOnlineRoom(response, response.role ? "Вы вошли в комнату." : "Комната заполнена. Вы наблюдаете за партией.");
+  enterOnlineRoom(response, response.role ? t("joined") : t("roomFull"));
   return true;
 }
 
@@ -621,7 +818,7 @@ async function pollRoom() {
       renderLeaderboard(response.leaderboard);
     }
   } catch (error) {
-    lastMessage = "Связь с сервером потеряна. Пробую переподключиться.";
+    lastMessage = t("reconnecting");
     updateStatus();
   }
 }
@@ -633,7 +830,7 @@ async function resetGame() {
   }
 
   if (!online.role) {
-    lastMessage = "Наблюдатель не может перезапустить партию.";
+    lastMessage = t("observerReset");
     updateStatus();
     return;
   }
@@ -645,7 +842,7 @@ async function resetGame() {
     },
   });
   applyRoomSnapshot(response);
-  lastMessage = "Партия началась заново.";
+  lastMessage = t("restarted");
   updateStatus();
   draw();
 }
@@ -660,7 +857,7 @@ function getNick() {
 }
 
 function makeGuestName() {
-  return `Игрок-${Math.floor(100 + Math.random() * 900)}`;
+  return `${t("guest")}-${Math.floor(100 + Math.random() * 900)}`;
 }
 
 function getVisitorId() {
@@ -693,23 +890,23 @@ function setShareLink(url) {
 function renderOnlineInfo(response) {
   const captured = Rules.countCaptured(state);
   const remaining = typeof state.remainingMoves === "number" ? state.remainingMoves : Rules.countLegalMoves(state);
-  const finish = state.gameOver ? ` ${Rules.getResultText(state)}` : "";
-  const stats = `Ходов: ${state.moves}. Доступных ходов: ${remaining}. Захвачено: красные ${captured.red}, синие ${captured.blue}.${finish}`;
+  const finish = state.gameOver ? ` ${getResultText(state)}` : "";
+  const stats = `${t("moves")}: ${state.moves}. ${t("availableMoves")}: ${remaining}. ${t("capturedStats")}: ${t("redLower")} ${captured.red}, ${t("blueLower")} ${captured.blue}.${finish}`;
   if (!response || !response.players) {
     updateBoardSizeControls();
-    roomPlayers.textContent = `Локальная партия. Поле: ${getSizeLabel(state.sizeName)}. ${stats}`;
+    roomPlayers.textContent = `${t("localGame")}. ${t("boardLabel")}: ${getSizeLabel(state.sizeName)}. ${stats}`;
     return;
   }
 
-  const red = response.players.red ? response.players.red.nick : "ждем игрока";
-  const blue = response.players.blue ? response.players.blue.nick : "ждем игрока";
+  const red = response.players.red ? response.players.red.nick : t("waiting");
+  const blue = response.players.blue ? response.players.blue.nick : t("waiting");
   const watchers = response.watchers || 0;
-  roomPlayers.textContent = `Красные: ${red}. Синие: ${blue}. Наблюдателей: ${watchers}. Поле: ${getSizeLabel(state.sizeName)}. ${stats}`;
+  roomPlayers.textContent = `${t("red")}: ${red}. ${t("blue")}: ${blue}. ${t("watchers")}: ${watchers}. ${t("boardLabel")}: ${getSizeLabel(state.sizeName)}. ${stats}`;
 }
 
 function renderLeaderboard(items) {
   if (!items || items.length === 0) {
-    leaderboardList.innerHTML = "<li>Первые захваты появятся здесь.</li>";
+    leaderboardList.innerHTML = `<li>${t("noCaptures")}</li>`;
     return;
   }
 
@@ -739,7 +936,7 @@ async function api(path, options = {}) {
   const response = await fetch(path, init);
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.error || "Ошибка сервера");
+    throw new Error(data.error || t("serverError"));
   }
   return data;
 }
@@ -779,18 +976,18 @@ localGameButton.addEventListener("click", resetLocalGame);
 boardSizeSelect.addEventListener("change", () => {
   if (online.enabled) {
     updateBoardSizeControls();
-    lastMessage = "В онлайн-комнате размер уже зафиксирован. Выберите размер перед созданием новой комнаты.";
+    lastMessage = t("sizeLocked");
     updateStatus();
     return;
   }
   const selectedSize = getSelectedSize();
   localStorage.setItem("dots.boardSize", selectedSize);
-  lastMessage = `Поле изменено: ${getSizeLabel(selectedSize)} ${getSizeText(selectedSize)}. Новая партия началась.`;
+  lastMessage = `${t("sizeChanged")}: ${getSizeLabel(selectedSize)} ${getSizeText(selectedSize)}. ${t("newGameStarted")}`;
   resetLocalGame();
 });
 copyLinkButton.addEventListener("click", async () => {
   await navigator.clipboard.writeText(roomLinkInput.value);
-  lastMessage = "Ссылка скопирована.";
+  lastMessage = t("copied");
   updateStatus();
 });
 fullscreenButton.addEventListener("click", toggleFullscreen);
@@ -834,10 +1031,11 @@ async function exitFullscreenMode() {
 function syncFullscreenState() {
   const active = Boolean(document.fullscreenElement) || document.body.classList.contains("game-fullscreen");
   document.body.classList.toggle("game-fullscreen", active);
-  fullscreenButton.textContent = active ? "Свернуть" : "Во весь экран";
+  fullscreenButton.textContent = active ? t("fullscreenExit") : t("fullscreenEnter");
   draw();
 }
 
+applyTranslations();
 nickInput.value = localStorage.getItem("dots.nick") || "";
 boardSizeSelect.value = Rules.normalizeSizeName(localStorage.getItem("dots.boardSize"));
 updateBoardSizeControls();

@@ -8,11 +8,11 @@
   const PLAYER_RED = "red";
   const PLAYER_BLUE = "blue";
   const BOARD_SIZES = {
-    small: { label: "Маленькое", cols: 11, rows: 9 },
-    medium: { label: "Среднее", cols: 17, rows: 13 },
-    large: { label: "Большое", cols: 25, rows: 19 },
+    small: { label: "Small", cols: 11, rows: 9 },
+    medium: { label: "Medium", cols: 17, rows: 13 },
+    large: { label: "Large", cols: 25, rows: 19 },
   };
-  const DEFAULT_SIZE = "medium";
+  const DEFAULT_SIZE = "small";
 
   function getBoardSize(sizeName) {
     return BOARD_SIZES[sizeName] || BOARD_SIZES[DEFAULT_SIZE];
@@ -72,32 +72,32 @@
     if (state.gameOver) {
       return {
         ok: false,
-        reason: "Партия уже завершена.",
+        reason: "The game is already over.",
       };
     }
 
     if (player !== state.currentPlayer) {
       return {
         ok: false,
-        reason: "Сейчас ход другого игрока.",
+        reason: "It is the other player's turn.",
       };
     }
 
     if (!isInsideBoard(state, x, y)) {
       return {
         ok: false,
-        reason: "Ход вне поля.",
+        reason: "Move is outside the board.",
       };
     }
 
     if (!canPlayAt(state, x, y)) {
       const blockedOwner = getBlockedOwner(state, x, y);
-      const ownerName = blockedOwner === PLAYER_RED ? "красными" : "синими";
+      const ownerName = blockedOwner === PLAYER_RED ? "red" : "blue";
       return {
         ok: false,
         reason: blockedOwner
-          ? `Эта область уже окружена ${ownerName}. Внутри нее ходы запрещены.`
-          : "На этом пересечении уже стоит точка.",
+          ? `This area is already surrounded by ${ownerName}. Moves inside it are forbidden.`
+          : "This intersection is already occupied.",
       };
     }
 
@@ -209,10 +209,10 @@
       return "";
     }
     if (state.winner === "draw") {
-      return `Партия завершена. Ничья: ${score.red}:${score.blue}.`;
+      return `Game over. Draw: ${score.red}:${score.blue}.`;
     }
-    const winnerName = state.winner === PLAYER_RED ? "Красные" : "Синие";
-    return `Партия завершена. Победили ${winnerName}: ${score.red}:${score.blue}.`;
+    const winnerName = state.winner === PLAYER_RED ? "Red" : "Blue";
+    return `Game over. Winner ${winnerName}: ${score.red}:${score.blue}.`;
   }
 
   function findCaptureZones(state, owner) {

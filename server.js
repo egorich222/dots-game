@@ -11,6 +11,100 @@ const EVENTS_FILE = path.join(DATA_DIR, "events.jsonl");
 const rooms = new Map();
 const leaderboard = new Map();
 const quickWaitingRooms = new Map();
+const SERVER_TEXT = {
+  en: {
+    serverError: "Server error",
+    opponentJoined: "Opponent joined.",
+    playersOnly: "Only game players can use this room.",
+    watcherNoReset: "A watcher cannot restart the game.",
+    reset: "started a new game.",
+    notFoundRoute: "Route not found.",
+    redStarts: "Red starts.",
+    joinedBlue: "joined as blue.",
+    roomNotFound: "Room not found.",
+    draw: "Game over. Draw",
+    winner: "Game over. Winner",
+    red: "red",
+    blue: "blue",
+    moveAccepted: "move accepted.",
+    captured: "captured",
+    dot: "dot",
+    dots: "dots",
+    guest: "Player",
+    statsTitle: "GridTrap Stats",
+    updated: "Updated",
+    back: "Back to game",
+    funnel: "Funnel",
+    topCaptures: "Top captures",
+    recentFinished: "Recent finished games",
+    visits: "Visits",
+    uniqueBrowsers: "Unique browsers",
+    createdRooms: "Created rooms",
+    joinedRooms: "Rooms with second player",
+    totalMoves: "Total moves",
+    totalCaptured: "Total captured dots",
+    completedGames: "Finished games",
+    avgDuration: "Average game duration",
+    avgMoves: "Average moves per finished game",
+    noCaptures: "No captures yet",
+    noFinished: "No finished games yet",
+    room: "Room",
+    board: "Board",
+    result: "Result",
+    score: "Score",
+    moves: "Moves",
+    time: "Time",
+    seconds: "sec",
+    minutes: "min",
+    badJson: "Could not parse JSON.",
+  },
+  ru: {
+    serverError: "Ошибка сервера",
+    opponentJoined: "Соперник подключился.",
+    playersOnly: "Эта комната доступна только игрокам партии.",
+    watcherNoReset: "Наблюдатель не может перезапустить партию.",
+    reset: "начал новую партию.",
+    notFoundRoute: "Маршрут не найден.",
+    redStarts: "Красные начинают.",
+    joinedBlue: "подключился за синих.",
+    roomNotFound: "Комната не найдена.",
+    draw: "Партия завершена. Ничья",
+    winner: "Партия завершена. Победили",
+    red: "красные",
+    blue: "синие",
+    moveAccepted: "ход принят.",
+    captured: "захватил",
+    dot: "точку",
+    dots: "точек",
+    guest: "Игрок",
+    statsTitle: "Статистика Точек",
+    updated: "Обновлено",
+    back: "Вернуться к игре",
+    funnel: "Воронка",
+    topCaptures: "Лучшие захваты",
+    recentFinished: "Последние завершенные партии",
+    visits: "Визиты",
+    uniqueBrowsers: "Уникальные браузеры",
+    createdRooms: "Создано комнат",
+    joinedRooms: "Комнат со вторым игроком",
+    totalMoves: "Ходов всего",
+    totalCaptured: "Захвачено точек всего",
+    completedGames: "Завершено партий",
+    avgDuration: "Средняя длительность партии",
+    avgMoves: "Среднее ходов в завершенной партии",
+    noCaptures: "Пока нет захватов",
+    noFinished: "Завершенных партий пока нет",
+    room: "Комната",
+    board: "Поле",
+    result: "Итог",
+    score: "Счет",
+    moves: "Ходы",
+    time: "Время",
+    seconds: "сек",
+    minutes: "мин",
+    badJson: "Не удалось прочитать JSON.",
+  },
+};
 
 const mimeTypes = {
   ".html": "text/html; charset=utf-8",
@@ -23,6 +117,7 @@ const mimeTypes = {
 };
 
 const server = http.createServer(async (request, response) => {
+  const lang = getRequestLang(request);
   try {
     const url = new URL(request.url, `http://${request.headers.host}`);
     if (url.pathname.startsWith("/api/")) {
@@ -31,13 +126,13 @@ const server = http.createServer(async (request, response) => {
     }
 
     if (request.method === "GET" && url.pathname === "/stats") {
-      sendHtml(response, 200, renderStatsPage(readStats()));
+      sendHtml(response, 200, renderStatsPage(readStats(), lang));
       return;
     }
 
     serveStatic(response, url.pathname);
   } catch (error) {
-    sendJson(response, error.status || 500, { error: error.message || "Ошибка сервера" });
+    sendJson(response, error.status || 500, { error: error.message || st(lang, "serverError") });
   }
 });
 
@@ -82,7 +177,7 @@ async function handleApi(request, response, url) {
         const player = makePlayer(nick, Rules.PLAYER_BLUE);
         room.players.blue = player;
         room.version += 1;
-        room.message = "Соперник подключился.";
+        room.message = "Opponent joined.";
         recordEvent("quick_matched", {
           roomId: room.id,
           size: room.state.sizeName,
@@ -141,7 +236,7 @@ async function handleApi(request, response, url) {
     const body = await readJson(request);
     const player = findPlayer(room, body.playerId);
     if (!player) {
-      sendJson(response, 403, { error: "Эта комната доступна только игрокам партии." });
+      sendJson(response, 403, { error: "Only game players can use this room." });
       return;
     }
 
@@ -206,7 +301,7 @@ async function handleApi(request, response, url) {
     const body = await readJson(request);
     const player = findPlayer(room, body.playerId);
     if (!player) {
-      sendJson(response, 403, { error: "Наблюдатель не может перезапустить партию." });
+      sendJson(response, 403, { error: "A watcher cannot restart the game." });
       return;
     }
 
@@ -214,7 +309,7 @@ async function handleApi(request, response, url) {
     room.version += 1;
     room.updatedAt = Date.now();
     room.createdAt = Date.now();
-    room.message = `${player.nick} начал новую партию.`;
+    room.message = `${player.nick} started a new game.`;
     recordEvent("game_reset", {
       roomId: room.id,
       size: room.state.sizeName,
@@ -225,7 +320,7 @@ async function handleApi(request, response, url) {
     return;
   }
 
-  sendJson(response, 404, { error: "Маршрут не найден." });
+  sendJson(response, 404, { error: "Route not found." });
 }
 
 function createRoom(nick, sizeName) {
@@ -242,7 +337,7 @@ function createRoom(nick, sizeName) {
     version: 1,
     createdAt: Date.now(),
     updatedAt: Date.now(),
-    message: "Красные начинают.",
+    message: "Red starts.",
   };
   rooms.set(id, room);
   return room;
@@ -254,7 +349,7 @@ function joinOrWatch(room, nick) {
     room.players.blue = player;
     room.version += 1;
     room.updatedAt = Date.now();
-    room.message = `${player.nick} подключился за синих.`;
+    room.message = `${player.nick} joined as blue.`;
     return player.id;
   }
 
@@ -315,7 +410,7 @@ function makePlayer(nick, role) {
 function getRoom(roomId) {
   const room = rooms.get(roomId);
   if (!room) {
-    const error = new Error("Комната не найдена.");
+    const error = new Error("Room not found.");
     error.status = 404;
     throw error;
   }
@@ -326,17 +421,17 @@ function buildMoveMessage(player, result) {
   if (result.gameOver) {
     const score = result.finalScore || { red: 0, blue: 0 };
     if (result.winner === "draw") {
-      return `Партия завершена. Ничья: ${score.red}:${score.blue}.`;
+      return `Game over. Draw: ${score.red}:${score.blue}.`;
     }
-    const winnerName = result.winner === Rules.PLAYER_RED ? "красные" : "синие";
-    return `Партия завершена. Победили ${winnerName}: ${score.red}:${score.blue}.`;
+    const winnerName = result.winner === Rules.PLAYER_RED ? "red" : "blue";
+    return `Game over. Winner ${winnerName}: ${score.red}:${score.blue}.`;
   }
 
   const gained = result.gained[player.role] || 0;
   if (gained <= 0) {
-    return `${player.nick}: ход принят.`;
+    return `${player.nick}: move accepted.`;
   }
-  return `${player.nick} захватил ${gained} ${plural(gained, "точку", "точки", "точек")}.`;
+  return `${player.nick} captured ${gained} ${gained === 1 ? "dot" : "dots"}.`;
 }
 
 function plural(number, one, few, many) {
@@ -365,7 +460,7 @@ function topLeaderboard() {
 
 function cleanNick(nick) {
   const value = String(nick || "").trim().slice(0, 18);
-  return value || `Игрок-${Math.floor(100 + Math.random() * 900)}`;
+  return value || `Player-${Math.floor(100 + Math.random() * 900)}`;
 }
 
 function cleanText(value, maxLength) {
@@ -472,36 +567,45 @@ function readStats() {
   };
 }
 
-function renderStatsPage(stats) {
+function getRequestLang(request) {
+  const header = String(request.headers["accept-language"] || "").toLowerCase();
+  return header.startsWith("ru") ? "ru" : "en";
+}
+
+function st(lang, key) {
+  return (SERVER_TEXT[lang] && SERVER_TEXT[lang][key]) || SERVER_TEXT.en[key] || key;
+}
+
+function renderStatsPage(stats, lang = "en") {
   const rows = [
-    ["Визиты", stats.counts.visit || 0],
-    ["Уникальные браузеры", stats.visitors],
-    ["Создано комнат", stats.roomsCreated],
-    ["Комнат со вторым игроком", stats.roomsJoined],
-    ["Ходов всего", stats.totalMoves],
-    ["Захвачено точек всего", stats.totalCaptured],
-    ["Завершено партий", stats.completed],
-    ["Средняя длительность партии", formatDuration(stats.avgGameDurationMs)],
-    ["Среднее ходов в завершенной партии", stats.avgMovesPerFinishedGame],
+    [st(lang, "visits"), stats.counts.visit || 0],
+    [st(lang, "uniqueBrowsers"), stats.visitors],
+    [st(lang, "createdRooms"), stats.roomsCreated],
+    [st(lang, "joinedRooms"), stats.roomsJoined],
+    [st(lang, "totalMoves"), stats.totalMoves],
+    [st(lang, "totalCaptured"), stats.totalCaptured],
+    [st(lang, "completedGames"), stats.completed],
+    [st(lang, "avgDuration"), formatDuration(stats.avgGameDurationMs, lang)],
+    [st(lang, "avgMoves"), stats.avgMovesPerFinishedGame],
   ];
 
   const topRows = stats.topCaptures.length
     ? stats.topCaptures.map((item, index) => `<tr><td>${index + 1}. ${escapeHtml(item.nick)}</td><td>${item.captured}</td></tr>`).join("")
-    : "<tr><td colspan=\"2\">Пока нет захватов</td></tr>";
+    : `<tr><td colspan="2">${st(lang, "noCaptures")}</td></tr>`;
 
   const finishedRows = stats.recentFinished.length
     ? stats.recentFinished.map((event) => {
-      const winner = event.winner === "draw" ? "ничья" : event.winner === Rules.PLAYER_RED ? "красные" : "синие";
-      return `<tr><td>${escapeHtml(event.roomId)}</td><td>${escapeHtml(event.size)}</td><td>${winner}</td><td>${event.redScore}:${event.blueScore}</td><td>${event.moves}</td><td>${formatDuration(event.durationMs)}</td></tr>`;
+      const winner = event.winner === "draw" ? "draw" : event.winner === Rules.PLAYER_RED ? st(lang, "red") : st(lang, "blue");
+      return `<tr><td>${escapeHtml(event.roomId)}</td><td>${escapeHtml(event.size)}</td><td>${winner}</td><td>${event.redScore}:${event.blueScore}</td><td>${event.moves}</td><td>${formatDuration(event.durationMs, lang)}</td></tr>`;
     }).join("")
-    : "<tr><td colspan=\"6\">Завершенных партий пока нет</td></tr>";
+    : `<tr><td colspan="6">${st(lang, "noFinished")}</td></tr>`;
 
   return `<!doctype html>
-<html lang="ru">
+<html lang="${lang}">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Статистика Точек</title>
+    <title>${st(lang, "statsTitle")}</title>
     <style>
       body { margin: 0; padding: 24px; color: #17211d; background: #fbfcf8; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
       main { width: min(980px, 100%); margin: 0 auto; }
@@ -518,10 +622,10 @@ function renderStatsPage(stats) {
   </head>
   <body>
     <main>
-      <h1>Статистика Точек</h1>
-      <p>Обновлено: ${formatDate(stats.generatedAt)}. <a href="/">Вернуться к игре</a></p>
+      <h1>${st(lang, "statsTitle")}</h1>
+      <p>${st(lang, "updated")}: ${formatDate(stats.generatedAt, lang)}. <a href="/">${st(lang, "back")}</a></p>
       <section>
-        <h2>Воронка</h2>
+        <h2>${st(lang, "funnel")}</h2>
         <table>
           <tbody>
             ${rows.map(([label, value]) => `<tr><td>${label}</td><td><strong>${value}</strong></td></tr>`).join("")}
@@ -529,13 +633,13 @@ function renderStatsPage(stats) {
         </table>
       </section>
       <section>
-        <h2>Лучшие захваты</h2>
+        <h2>${st(lang, "topCaptures")}</h2>
         <table><tbody>${topRows}</tbody></table>
       </section>
       <section>
-        <h2>Последние завершенные партии</h2>
+        <h2>${st(lang, "recentFinished")}</h2>
         <table>
-          <thead><tr><th>Комната</th><th>Поле</th><th>Итог</th><th>Счет</th><th>Ходы</th><th>Время</th></tr></thead>
+          <thead><tr><th>${st(lang, "room")}</th><th>${st(lang, "board")}</th><th>${st(lang, "result")}</th><th>${st(lang, "score")}</th><th>${st(lang, "moves")}</th><th>${st(lang, "time")}</th></tr></thead>
           <tbody>${finishedRows}</tbody>
         </table>
       </section>
@@ -544,15 +648,15 @@ function renderStatsPage(stats) {
 </html>`;
 }
 
-function formatDuration(ms) {
+function formatDuration(ms, lang = "en") {
   const seconds = Math.max(0, Math.round(Number(ms || 0) / 1000));
   const minutes = Math.floor(seconds / 60);
   const rest = seconds % 60;
-  return minutes > 0 ? `${minutes} мин ${rest} сек` : `${rest} сек`;
+  return minutes > 0 ? `${minutes} ${st(lang, "minutes")} ${rest} ${st(lang, "seconds")}` : `${rest} ${st(lang, "seconds")}`;
 }
 
-function formatDate(value) {
-  return new Date(value).toLocaleString("ru-RU");
+function formatDate(value, lang = "en") {
+  return new Date(value).toLocaleString(lang === "ru" ? "ru-RU" : "en-US");
 }
 
 function escapeHtml(value) {
@@ -618,7 +722,7 @@ function readJson(request) {
       try {
         resolve(JSON.parse(body));
       } catch (error) {
-        reject(new Error("Не удалось прочитать JSON."));
+        reject(new Error("Could not parse JSON."));
       }
     });
     request.on("error", reject);
