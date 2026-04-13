@@ -102,6 +102,11 @@ select {
   padding: 8px 10px;
 }
 
+select:disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
 .mode {
   margin: 7px 0 0;
   color: var(--muted);

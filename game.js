@@ -17,6 +17,7 @@ const createRoomButton = document.querySelector("#createRoomButton");
 const quickGameButton = document.querySelector("#quickGameButton");
 const localGameButton = document.querySelector("#localGameButton");
 const boardSizeSelect = document.querySelector("#boardSizeSelect");
+const boardSizeText = document.querySelector("#boardSizeText");
 const shareBox = document.querySelector("#shareBox");
 const roomLinkInput = document.querySelector("#roomLink");
 const copyLinkButton = document.querySelector("#copyLinkButton");
@@ -57,6 +58,7 @@ let online = {
 };
 
 function resetLocalGame() {
+  const message = lastMessage;
   stopPolling();
   online = {
     enabled: false,
@@ -68,7 +70,7 @@ function resetLocalGame() {
   };
   state = Rules.createState(getSelectedSize());
   hoverPoint = null;
-  lastMessage = "Локальная партия. Красные начинают.";
+  lastMessage = message || "Локальная партия. Красные начинают.";
   setShareLink("");
   renderOnlineInfo(null);
   updateStatus();
@@ -283,6 +285,21 @@ function getSelectedSize() {
 
 function getSizeLabel(sizeName) {
   return Rules.getBoardSize(sizeName).label.toLowerCase();
+}
+
+function getSizeText(sizeName) {
+  const size = Rules.getBoardSize(sizeName);
+  return `${size.cols}x${size.rows}`;
+}
+
+function updateBoardSizeControls() {
+  const sizeName = state.sizeName || getSelectedSize();
+  boardSizeSelect.value = sizeName;
+  boardSizeText.textContent = getSizeText(sizeName);
+  boardSizeSelect.disabled = online.enabled;
+  boardSizeSelect.title = online.enabled
+    ? "Размер онлайн-партии фиксируется при создании комнаты."
+    : "Размер применится к новой локальной партии или новой онлайн-комнате.";
 }
 
 function draw() {
@@ -562,8 +579,7 @@ function applyRoomSnapshot(response) {
   }
 
   state = response.state;
-  boardSizeSelect.value = state.sizeName || Rules.DEFAULT_SIZE;
-  boardSizeSelect.disabled = online.enabled;
+  updateBoardSizeControls();
   online.roomId = response.roomId || online.roomId;
   online.version = response.version || online.version;
   if (Object.prototype.hasOwnProperty.call(response, "role")) {
@@ -680,7 +696,7 @@ function renderOnlineInfo(response) {
   const finish = state.gameOver ? ` ${Rules.getResultText(state)}` : "";
   const stats = `Ходов: ${state.moves}. Доступных ходов: ${remaining}. Захвачено: красные ${captured.red}, синие ${captured.blue}.${finish}`;
   if (!response || !response.players) {
-    boardSizeSelect.disabled = false;
+    updateBoardSizeControls();
     roomPlayers.textContent = `Локальная партия. Поле: ${getSizeLabel(state.sizeName)}. ${stats}`;
     return;
   }
@@ -761,11 +777,15 @@ quickGameButton.addEventListener("click", () => quickGame().catch((error) => {
 }));
 localGameButton.addEventListener("click", resetLocalGame);
 boardSizeSelect.addEventListener("change", () => {
-  localStorage.setItem("dots.boardSize", getSelectedSize());
   if (online.enabled) {
-    boardSizeSelect.value = state.sizeName || Rules.DEFAULT_SIZE;
+    updateBoardSizeControls();
+    lastMessage = "В онлайн-комнате размер уже зафиксирован. Выберите размер перед созданием новой комнаты.";
+    updateStatus();
     return;
   }
+  const selectedSize = getSelectedSize();
+  localStorage.setItem("dots.boardSize", selectedSize);
+  lastMessage = `Поле изменено: ${getSizeLabel(selectedSize)} ${getSizeText(selectedSize)}. Новая партия началась.`;
   resetLocalGame();
 });
 copyLinkButton.addEventListener("click", async () => {
@@ -820,6 +840,7 @@ function syncFullscreenState() {
 
 nickInput.value = localStorage.getItem("dots.nick") || "";
 boardSizeSelect.value = Rules.normalizeSizeName(localStorage.getItem("dots.boardSize"));
+updateBoardSizeControls();
 recordVisit();
 joinRoomFromUrl().then((joined) => {
   if (!joined) {
