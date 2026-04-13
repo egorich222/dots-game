@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Точки</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="game-panel" aria-label="Игра Точки">
+        <div class="topbar">
+          <div>
+            <p class="eyebrow">Точки</p>
+            <h1>Окружи соперника</h1>
+            <p class="mode" id="modeText">Локальная игра</p>
+          </div>
+          <div class="top-actions">
+            <button id="fullscreenButton" type="button">Во весь экран</button>
+            <button id="resetButton" type="button">Новая партия</button>
+          </div>
+        </div>
+
+        <div class="lobby" aria-label="Онлайн-игра">
+          <label class="nick-field">
+            <span>Ник</span>
+            <input id="nickInput" type="text" maxlength="18" autocomplete="nickname" placeholder="Игрок">
+          </label>
+          <label class="nick-field">
+            <span>Поле</span>
+            <select id="boardSizeSelect">
+              <option value="small">Маленькое</option>
+              <option value="medium" selected>Среднее</option>
+              <option value="large">Большое</option>
+            </select>
+          </label>
+          <button id="createRoomButton" type="button">Комната по ссылке</button>
+          <button id="quickGameButton" type="button">Быстрая игра</button>
+          <button id="localGameButton" type="button">Локально</button>
+        </div>
+
+        <div class="share" id="shareBox" hidden>
+          <input id="roomLink" type="text" readonly aria-label="Ссылка на комнату">
+          <button id="copyLinkButton" type="button">Скопировать</button>
+        </div>
+
+        <div class="online-row">
+          <p id="roomPlayers">Онлайн-комната пока не выбрана.</p>
+          <div class="leaderboard">
+            <span>Лучшие захваты</span>
+            <ol id="leaderboardList">
+              <li>Первые захваты появятся здесь.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="status" aria-live="polite">
+          <div class="player-chip red active" id="redChip">
+            <span class="swatch"></span>
+            <span class="player-name">Красные</span>
+            <span class="score-label">захвачено</span>
+            <strong id="redScore">0</strong>
+          </div>
+          <div class="turn" id="turnText">Ход красных</div>
+          <div class="player-chip blue" id="blueChip">
+            <span class="swatch"></span>
+            <span class="player-name">Синие</span>
+            <span class="score-label">захвачено</span>
+            <strong id="blueScore">0</strong>
+          </div>
+        </div>
+
+        <div class="board-wrap">
+          <canvas id="board" width="900" height="680" aria-label="Игровое поле"></canvas>
+        </div>
+
+        <p class="hint" id="hint">
+          Ставьте точки на пересечения. Замкнутая линия из соседних точек захватывает область только если внутри есть точка соперника.
+        </p>
+
+        <div class="fullscreen-dock" aria-label="Полноэкранный режим">
+          <button id="exitFullscreenButton" type="button">Свернуть</button>
+        </div>
+      </section>
+    </main>
+
+    <script src="rules.js"></script>
+    <script src="game.js"></script>
+  </body>
+</html>
